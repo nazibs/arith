@@ -2,8 +2,9 @@
 This work is a part of the course homework for Programming Languages. The task is to create an interpreter for the ARITH language that allows addition and multiplication of integers.
 
 ### Requirements:
-Python 3
-PyInstaller 3.6
+1. Python 3
+2. PyInstaller 3.6
+
 
 Following are the requirements of the homework assignment:
 1. An Abstract Syntax Tree (AST) of ARITH.
@@ -20,7 +21,6 @@ Below is the flow and description of the python code:
 
 ### Features added:
 Below are the additional features that I have added on top of the basic requirements:
-
 1. There is no restriction of assuming exactly 1 whitespace between characters. The script will remove/ignore any number of whitespaces between each character.
 2. The script also allows subtraction and division on top of the addition and multiplication. Although I haven't handled the special cases for the division like divide by 0. The script will return float when the division operand is involved in the input string.
 
