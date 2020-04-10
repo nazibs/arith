@@ -62,6 +62,9 @@ class Lexer():
             if self.current_char == '-':
                 token = Token(MINUS, self.current_char)
                 self.next_character()
+                # Handling the negative numbers
+                if self.current_char.isdigit():
+                    token = Token(INTEGER, -1*self.get_complete_integer())
                 return token
             if self.current_char == '*':
                 token = Token(MUL, self.current_char)
@@ -115,6 +118,7 @@ class Parser():
             self.error()
 
         return num_node
+
 
     # Computes the Multiplication or Division
     # Implemented Division to complete basic Calculator features
