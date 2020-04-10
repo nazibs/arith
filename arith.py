@@ -1,19 +1,17 @@
 # Building a simple interpreter https://ruslanspivak.com/lsbasi-part1/
 # Token types
 
-INTEGER, PLUS, MINUS, MUL, SPACE, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MUL', 'SPACE', 'EOF'
+INTEGER, PLUS, MINUS, MUL, DIV, SPACE, EOF = 'INTEGER', 'PLUS', 'MINUS', 'MUL', 'DIV', 'SPACE', 'EOF'
 
 class Token():
     def __init__(self, type, value):
         self.type = type
         self.value = value
 
-
-class Interpreter():
+class Lexer():
     def __init__(self, text):
         self.text = text
         self.pos = 0
-        self.current_token = None
         self.current_char = self.text[self.pos]
 
     def error(self):
@@ -31,29 +29,21 @@ class Interpreter():
             self.current_char = self.text[self.pos]
 
     def get_complete_integer(self):
-        print('inside get_complete_integer')
         integer_value = ''
         while self.current_char is not None and self.current_char.isdigit():
-            print('self.current_char:',self.current_char)
             integer_value += self.current_char
             self.next_character()
-        print('returning complete integer:',integer_value)
         return int(integer_value)
 
     def get_next_token(self):
         text = self.text
 
-        # print('get_next_token :: text:', text)
-
         if self.pos > len(text)-1:
             return Token(EOF, None)
 
-        # current_char = text[self.pos]
         while self.current_char is not None:
-            print('get_next_token :: current_char:', self.current_char)
             if self.current_char.isdigit():
                 token = Token(INTEGER, self.get_complete_integer())
-                # self.next_character()
                 return token
             if self.current_char.isspace():
                 self.skip_whitespaces()
@@ -70,49 +60,67 @@ class Interpreter():
                 token = Token(MUL, self.current_char)
                 self.next_character()
                 return token
+            if self.current_char == '/':
+                token = Token(DIV, self.current_char)
+                self.next_character()
+                return token
 
             self.error()
         return Token(EOF, None)
 
+
+class Interpreter():
+    def __init__(self, lexer):
+        self.lexer = lexer
+        self.current_token = self.lexer.get_next_token()
+
+    def error(self):
+        raise Exception('Error in parsing the input')
+
     def eat(self, token_type):
         print('eat:: token_type:', token_type)
         if self.current_token.type == token_type:
-            self.current_token = self.get_next_token()
+            self.current_token = self.lexer.get_next_token()
         else:
             self.error()
 
-    def expr(self):
-        self.current_token = self.get_next_token()
 
-        result = 0
-        left = self.current_token
-        print('left.type:', left.type, ' left.value:', left.value)
+    def compute_mul_div(self):
+        print('inside compute_mul_div')
+
+        result = self.current_token.value
         self.eat(INTEGER)
 
-        while self.current_token.type is not EOF:
+        while self.current_token.type in (MUL, DIV):
+            if self.current_token.type == MUL:
+                self.eat(self.current_token.type)
+                result = result * self.current_token.value
+                self.eat(INTEGER)
+            elif self.current_token.type == DIV:
+                self.eat(self.current_token.type)
+                result = result / self.current_token.value
+                self.eat(INTEGER)
 
-            # print('self.current_token type:', self.current_token.type)
+        print('returning from compute_mul_div:', result)
+        return result
 
-            op = self.current_token
-            print('op.type:', op.type, ' op.value:', op.value)
-            self.eat(self.current_token.type)
 
-            # if self.current_token.type == SPACE:
-            #     self.current_token = self.get_next_token()
+    def compute_add_sub(self):
+        print('inside compute_add_sub')
+        result = self.compute_mul_div()
 
-            right = self.current_token
-            print('right.type:', right.type, ' right.value:', right.value)
-            self.eat(INTEGER)
+        print('computing add sub')
+        while self.current_token.type in (PLUS, MINUS):
+            if self.current_token.type == PLUS:
+                self.eat(self.current_token.type)
+                result = result + self.compute_mul_div()
+                # self.eat(INTEGER)
+            elif self.current_token.type == MINUS:
+                self.eat(self.current_token.type)
+                result = result - self.compute_mul_div()
+                # self.eat(INTEGER)
 
-            if op.value == '+':
-                result = left.value + right.value
-            elif op.value == '-':
-                result = left.value - right.value
-            else:
-                result = left.value * right.value
-
-            left = Token(INTEGER, result)
-
+        print('returning from compute_add_sub')
         return result
 
 def main():
@@ -125,11 +133,16 @@ def main():
         if not text:
             continue
 
-        interpreter = Interpreter(text)
-        result = interpreter.expr()
+        lexer = Lexer(text)
+        interpreter = Interpreter(lexer)
+        result = interpreter.compute_add_sub()
         print('Result:', result)
 
 if __name__ == '__main__':
     main()
+
+
+
+
 
 
