@@ -102,7 +102,7 @@ class Parser():
 
     # Processes the current token and returns the next token
     def eat(self, token_type):
-        print('eat:: token_type:', token_type)
+        # print('eat:: token_type:', token_type)
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
         else:
@@ -110,7 +110,7 @@ class Parser():
 
     # Evaluates to Number
     def eval_num(self):
-        print('Evaluating Number:', self.current_token.value)
+        # print('Evaluating Number:', self.current_token.value)
         if self.current_token.type == INTEGER:
             num_node = NumNode(self.current_token)
             self.eat(INTEGER)
@@ -124,7 +124,7 @@ class Parser():
     # Implemented Division to complete basic Calculator features
     # Have not handled special cases for division(Divide by 0)
     def compute_mul_div(self):
-        print('inside compute_mul_div')
+        # print('inside compute_mul_div')
 
         node = self.eval_num()
         while self.current_token.type in (MUL, DIV):
@@ -146,13 +146,13 @@ class Parser():
 
     # Computes the Addition or Subtraction
     def compute_add_sub(self):
-        print('inside compute_add_sub')
+        # print('inside compute_add_sub')
 
         # Setting the precedence
         # Multiplication and Division should be performed before addition and subtraction
         node = self.compute_mul_div()
 
-        print('computing addition/subtraction')
+        # print('computing addition/subtraction')
         while self.current_token.type in (PLUS, MINUS):
             token = self.current_token
             if self.current_token.type == PLUS:
@@ -169,7 +169,7 @@ class Parser():
             # print(type(node))
             # print('left:', node.left.token.value, ' right:', node.right.token.value)
 
-        print('returning from compute_add_sub')
+        # print('returning from compute_add_sub')
         return node
 
 
@@ -193,13 +193,11 @@ class Interpreter():
             elif node.op.type == DIV:
                 return (self.interpret(node.left) / self.interpret(node.right))
             elif node.op.type == PLUS:
-                print('Plus operand detected')
                 return (self.interpret(node.left) + self.interpret(node.right))
             elif node.op.type == MINUS:
                 return (self.interpret(node.left) - self.interpret(node.right))
 
     def calculate(self):
-        print('Calculate AST type: ',self.parserAST.__class__.__name__)
         return self.interpret(self.parserAST)
 
 
@@ -207,7 +205,7 @@ def main():
     while True:
         try:
             text = input()
-            print('Input: ', text)
+            # print('Input: ', text)
         except EOFError:
             break
         if not text:
@@ -223,7 +221,7 @@ def main():
 
         interpreter = Interpreter(ast)
         result = interpreter.calculate()
-        print('Result:', result)
+        print(result)
 
 if __name__ == '__main__':
     main()
